@@ -7,80 +7,117 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
+    """
+    OAuth认证系统的数据库迁移文件（第二次迁移）
+    主要对字段名称和显示文本进行国际化优化和规范化
+    """
 
+    # 依赖关系：此迁移依赖于第一次初始迁移
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('oauth', '0001_initial'),
+        ('oauth', '0001_initial'),  # 依赖oauth应用的第一次迁移
     ]
 
     operations = [
+        # 修改OAuthConfig模型的元选项
         migrations.AlterModelOptions(
             name='oauthconfig',
-            options={'ordering': ['-creation_time'], 'verbose_name': 'oauth配置', 'verbose_name_plural': 'oauth配置'},
+            options={
+                # 按创建时间降序排列（字段名更新为creation_time）
+                'ordering': ['-creation_time'],
+                # 更新显示名称，保持中文
+                'verbose_name': 'oauth配置',
+                'verbose_name_plural': 'oauth配置'
+            },
         ),
+        # 修改OAuthUser模型的元选项
         migrations.AlterModelOptions(
             name='oauthuser',
-            options={'ordering': ['-creation_time'], 'verbose_name': 'oauth user', 'verbose_name_plural': 'oauth user'},
+            options={
+                # 按创建时间降序排列（字段名更新为creation_time）
+                'ordering': ['-creation_time'],
+                # 更新显示名称，改为英文（国际化）
+                'verbose_name': 'oauth user',
+                'verbose_name_plural': 'oauth user'
+            },
+        ),
+        # 移除OAuthConfig模型的旧时间字段
+        migrations.RemoveField(
+            model_name='oauthconfig',
+            name='created_time',  # 移除旧的创建时间字段
         ),
         migrations.RemoveField(
             model_name='oauthconfig',
-            name='created_time',
+            name='last_mod_time',  # 移除旧的修改时间字段
         ),
+        # 移除OAuthUser模型的旧时间字段
         migrations.RemoveField(
-            model_name='oauthconfig',
-            name='last_mod_time',
+            model_name='oauthuser',
+            name='created_time',  # 移除旧的创建时间字段
         ),
         migrations.RemoveField(
             model_name='oauthuser',
-            name='created_time',
+            name='last_mod_time',  # 移除旧的修改时间字段
         ),
-        migrations.RemoveField(
-            model_name='oauthuser',
-            name='last_mod_time',
-        ),
+        # 为OAuthConfig模型添加新的时间字段（标准化命名）
         migrations.AddField(
             model_name='oauthconfig',
             name='creation_time',
+            # 创建时间字段，使用当前时间作为默认值
             field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='creation time'),
         ),
         migrations.AddField(
             model_name='oauthconfig',
             name='last_modify_time',
+            # 最后修改时间字段，使用当前时间作为默认值
             field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='last modify time'),
         ),
+        # 为OAuthUser模型添加新的时间字段（标准化命名）
         migrations.AddField(
             model_name='oauthuser',
             name='creation_time',
+            # 创建时间字段，使用当前时间作为默认值
             field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='creation time'),
         ),
         migrations.AddField(
             model_name='oauthuser',
             name='last_modify_time',
+            # 最后修改时间字段，使用当前时间作为默认值
             field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='last modify time'),
         ),
+        # 修改OAuthConfig回调地址字段的默认值和显示名称
         migrations.AlterField(
             model_name='oauthconfig',
             name='callback_url',
+            # 将默认值从百度网址改为空字符串，显示名称改为英文
             field=models.CharField(default='', max_length=200, verbose_name='callback url'),
         ),
+        # 修改OAuthConfig启用字段的显示名称
         migrations.AlterField(
             model_name='oauthconfig',
             name='is_enable',
+            # 显示名称改为英文（国际化）
             field=models.BooleanField(default=True, verbose_name='is enable'),
         ),
+        # 修改OAuthConfig类型字段的选项和显示名称
         migrations.AlterField(
             model_name='oauthconfig',
             name='type',
+            # 将部分中文选项改为英文，显示名称改为英文
             field=models.CharField(choices=[('weibo', 'weibo'), ('google', 'google'), ('github', 'GitHub'), ('facebook', 'FaceBook'), ('qq', 'QQ')], default='a', max_length=10, verbose_name='type'),
         ),
+        # 修改OAuthUser作者字段的显示名称
         migrations.AlterField(
             model_name='oauthuser',
             name='author',
+            # 显示名称从中文"用户"改为英文"author"
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='author'),
         ),
+        # 修改OAuthUser昵称字段的显示名称
         migrations.AlterField(
             model_name='oauthuser',
             name='nickname',
+            # 显示名称从中文"昵称"改为英文"nickname"
             field=models.CharField(max_length=50, verbose_name='nickname'),
         ),
     ]

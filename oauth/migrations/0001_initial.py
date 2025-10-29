@@ -7,50 +7,82 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
+    """
+    OAuth认证系统的数据库迁移文件
+    初始化创建OAuth配置和OAuth用户两个数据表
+    """
 
     initial = True
 
     dependencies = [
+        # 依赖Django的用户认证系统
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
+        # 创建OAuth配置表
         migrations.CreateModel(
             name='OAuthConfig',
             fields=[
+                # 主键ID，自增BigAutoField
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                # OAuth服务商类型，提供多种第三方登录选择
                 ('type', models.CharField(choices=[('weibo', '微博'), ('google', '谷歌'), ('github', 'GitHub'), ('facebook', 'FaceBook'), ('qq', 'QQ')], default='a', max_length=10, verbose_name='类型')),
+                # 第三方应用的AppKey
                 ('appkey', models.CharField(max_length=200, verbose_name='AppKey')),
+                # 第三方应用的AppSecret，用于安全验证
                 ('appsecret', models.CharField(max_length=200, verbose_name='AppSecret')),
+                # OAuth认证成功后的回调地址
                 ('callback_url', models.CharField(default='http://www.baidu.com', max_length=200, verbose_name='回调地址')),
+                # 是否启用该OAuth配置
                 ('is_enable', models.BooleanField(default=True, verbose_name='是否显示')),
+                # 记录创建时间，默认为当前时间
                 ('created_time', models.DateTimeField(default=django.utils.timezone.now, verbose_name='创建时间')),
+                # 记录最后修改时间，默认为当前时间
                 ('last_mod_time', models.DateTimeField(default=django.utils.timezone.now, verbose_name='修改时间')),
             ],
             options={
+                # 单数模型名称显示
                 'verbose_name': 'oauth配置',
+                # 复数模型名称显示
                 'verbose_name_plural': 'oauth配置',
+                # 按创建时间降序排列
                 'ordering': ['-created_time'],
             },
         ),
+        # 创建OAuth用户表
         migrations.CreateModel(
             name='OAuthUser',
             fields=[
+                # 主键ID，自增BigAutoField
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                # 第三方平台的用户唯一标识
                 ('openid', models.CharField(max_length=50)),
+                # 用户在第三方平台的昵称
                 ('nickname', models.CharField(max_length=50, verbose_name='昵称')),
+                # OAuth访问令牌，可能为空
                 ('token', models.CharField(blank=True, max_length=150, null=True)),
+                # 用户在第三方平台的头像URL
                 ('picture', models.CharField(blank=True, max_length=350, null=True)),
+                # OAuth服务商类型
                 ('type', models.CharField(max_length=50)),
+                # 用户在第三方平台的邮箱，可能为空
                 ('email', models.CharField(blank=True, max_length=50, null=True)),
+                # 存储额外的用户元数据，JSON格式或其他格式
                 ('metadata', models.TextField(blank=True, null=True)),
+                # 记录创建时间，默认为当前时间
                 ('created_time', models.DateTimeField(default=django.utils.timezone.now, verbose_name='创建时间')),
+                # 记录最后修改时间，默认为当前时间
                 ('last_mod_time', models.DateTimeField(default=django.utils.timezone.now, verbose_name='修改时间')),
+                # 关联到本站用户，外键关系，允许为空（未绑定时）
                 ('author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='用户')),
             ],
             options={
+                # 单数模型名称显示
                 'verbose_name': 'oauth用户',
+                # 复数模型名称显示
                 'verbose_name_plural': 'oauth用户',
+                # 按创建时间降序排列
                 'ordering': ['-created_time'],
             },
         ),
