@@ -4,15 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+    """
+    OAuth认证系统的数据库迁移文件（第三次迁移）
+    微调OAuth用户昵称字段的显示名称
+    """
 
+    # 依赖关系：此迁移依赖于第二次迁移
     dependencies = [
         ('oauth', '0002_alter_oauthconfig_options_alter_oauthuser_options_and_more'),
     ]
 
     operations = [
+        # 修改OAuthUser模型中nickname字段的verbose_name
         migrations.AlterField(
             model_name='oauthuser',
             name='nickname',
+            # 将显示名称从'nickname'改为'nick name'，增加可读性
+            # 保持字段类型和长度不变，只修改显示文本
             field=models.CharField(max_length=50, verbose_name='nick name'),
         ),
     ]
